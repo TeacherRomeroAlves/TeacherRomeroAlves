@@ -1,31 +1,547 @@
-<div style="display: flex; justify-content: center;">
-  <div style="width: 200px; height: 200px; perspective: 1000px; margin: 10px;">
-    <div style="position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d;">
-      <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; padding: 10px; text-align: center; background-color: teal; color: white;">
-        <h3>Card 1 - Front</h3>
-      </div>
-      <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; padding: 10px; text-align: center; background-color: #555; color: white; transform: rotateY(180deg);">
-        <h3>Card 1 - Back</h3>
-      </div>
-    </div>
-  </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adivinhão do Fla da Gama Paulista</title>
+  <style>
+    :root {
+      --bg: #090909;
+      --card: #131313;
+      --red: #cc1212;
+      --red-soft: #8d0d0d;
+      --text: #f3f3f3;
+      --muted: #c6c6c6;
+      --white: #ffffff;
+      --border: #2a2a2a;
+      --ok: #18a34a;
+    }
 
-  <div style="width: 200px; height: 200px; perspective: 1000px; margin: 10px;">
-    <div style="position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d;">
-      <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; padding: 10px; text-align: center; background-color: teal; color: white;">
-        <h3>Card 2 - Front</h3>
-      </div>
-      <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; padding: 10px; text-align: center; background-color: #555; color: white; transform: rotateY(180deg);">
-        <h3>Card 2 - Back</h3>
-      </div>
-    </div>
-  </div>
+    * { box-sizing: border-box; }
 
-  <div style="width: 200px; height: 200px; perspective: 1000px; margin: 10px;">
-    <div style="position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d;">
-      <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; padding: 10px; text-align: center; background-color: teal; color: white;">
-        <h3>Card 3 - Front</h3>
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1a1a1a 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(960px, 92vw);
+      margin: 0 auto;
+      padding: 20px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.9vw, 2.2rem);
+      letter-spacing: 0.3px;
+      color: var(--white);
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .language {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, #171717, #101010);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      margin-bottom: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      background: #111;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .stat small { color: var(--muted); }
+    .stat strong { font-size: 1.35rem; color: var(--white); display: block; margin-top: 4px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid #3a3a3a;
+      background: #090909;
+      color: var(--white);
+    }
+
+    button {
+      border: none;
+      background: linear-gradient(180deg, var(--red), var(--red-soft));
+      color: white;
+      font-weight: 700;
+      padding: 11px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .ghost {
+      background: #1b1b1b;
+      border: 1px solid #343434;
+    }
+
+    .answer {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--white);
+      min-height: 24px;
+    }
+
+    .hint {
+      border-left: 3px solid var(--red);
+      padding-left: 10px;
+      color: var(--muted);
+      min-height: 20px;
+      margin-top: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid #343434;
+      font-size: 0.85rem;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .result {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--ok);
+      min-height: 24px;
+    }
+
+    .shareBox {
+      width: 100%;
+      margin-top: 10px;
+      background: #0c0c0c;
+      color: #f6f6f6;
+      border: 1px solid #333;
+      border-radius: 10px;
+      min-height: 125px;
+      padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <div>
+        <h1 id="title"></h1>
+        <p class="subtitle" id="subtitle"></p>
       </div>
-      <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; padding: 10px; text-align: center; background-color: #555; color: white; transform: rotateY(180deg);">
-        <h3>Card 3 - Back</h3>
-      </div
+      <select id="language" class="language" aria-label="Language">
+        <option value="pt">Português (BR)</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+
+    <section class="panel">
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="panel">
+      <div class="topbar" style="margin-bottom: 8px;">
+        <h2 id="questionTitle" style="margin: 0; font-size: 1.1rem;"></h2>
+        <div>
+          <span class="badge" id="questionCount"></span>
+          <span class="badge" id="hintCount"></span>
+        </div>
+      </div>
+      <div class="row">
+        <input id="questionInput" type="text" maxlength="120" />
+        <button id="askBtn"></button>
+      </div>
+      <p class="answer" id="questionAnswer"></p>
+      <div class="hint" id="hintText"></div>
+      <div style="display:flex; gap:8px; margin-top: 10px; flex-wrap: wrap;">
+        <button id="hintBtn" class="ghost"></button>
+        <button id="newGameBtn" class="ghost"></button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 id="guessTitle" style="margin-top:0; font-size: 1.1rem;"></h2>
+      <div class="row">
+        <input id="guessInput" type="text" maxlength="90" />
+        <button id="guessBtn"></button>
+      </div>
+      <p class="result" id="guessResult"></p>
+    </section>
+
+    <section class="panel">
+      <h2 id="pathTitle" style="margin-top: 0; font-size:1.1rem;"></h2>
+      <ol class="list" id="questionPath"></ol>
+      <textarea id="shareText" class="shareBox" readonly></textarea>
+      <div style="display:flex; gap:8px; margin-top: 8px; flex-wrap: wrap;">
+        <button id="copyBtn" class="ghost"></button>
+        <button id="shareBtn"></button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const players = [
+      {
+        name: "Zico",
+        stats: { matches: 732, goals: 509, assists: 204, yellowCards: 45, redCards: 3, titles: 13 },
+        hint: { pt: "Jogou grande parte da carreira no Flamengo e usava a camisa 10.", en: "He spent much of his career at Flamengo and wore number 10." },
+        tags: ["flamengo", "meia", "camisa 10", "brasil", "mundo", "ídolo", "world cup", "midfielder", "icon"],
+        facts: { brazilian: true, striker: false, midfielder: true, defender: false, goalkeeper: false, worldCupWinner: false, playedEurope: true, retired: true, number10: true, flamengoLegend: true }
+      },
+      {
+        name: "Romário",
+        stats: { matches: 964, goals: 755, assists: 158, yellowCards: 84, redCards: 10, titles: 22 },
+        hint: { pt: "Foi campeão do mundo pela seleção brasileira em 1994.", en: "He won the World Cup with Brazil in 1994." },
+        tags: ["atacante", "brasil", "barcelona", "vasco", "baixo", "goleador", "striker", "world cup", "1994"],
+        facts: { brazilian: true, striker: true, midfielder: false, defender: false, goalkeeper: false, worldCupWinner: true, playedEurope: true, retired: true, number10: false, flamengoLegend: false }
+      },
+      {
+        name: "Adriano Imperador",
+        stats: { matches: 421, goals: 201, assists: 64, yellowCards: 31, redCards: 4, titles: 9 },
+        hint: { pt: "Fez muito sucesso na Itália, principalmente em Milão.", en: "He was very successful in Italy, especially in Milan." },
+        tags: ["atacante", "inter", "flamengo", "esquerda", "imperador", "striker", "brazil"],
+        facts: { brazilian: true, striker: true, midfielder: false, defender: false, goalkeeper: false, worldCupWinner: false, playedEurope: true, retired: true, number10: false, flamengoLegend: true }
+      },
+      {
+        name: "Arrascaeta",
+        stats: { matches: 562, goals: 148, assists: 189, yellowCards: 59, redCards: 3, titles: 18 },
+        hint: { pt: "É uruguaio e é conhecido por sua visão de jogo.", en: "He is Uruguayan and known for his vision on the pitch." },
+        tags: ["uruguai", "flamengo", "meia", "canhoto", "atual", "uruguay", "midfielder"],
+        facts: { brazilian: false, striker: false, midfielder: true, defender: false, goalkeeper: false, worldCupWinner: false, playedEurope: false, retired: false, number10: true, flamengoLegend: true }
+      },
+      {
+        name: "Juninho Pernambucano",
+        stats: { matches: 730, goals: 181, assists: 170, yellowCards: 75, redCards: 5, titles: 19 },
+        hint: { pt: "Era especialista em cobranças de falta.", en: "He was a specialist in free kicks." },
+        tags: ["vasco", "lyon", "meia", "faltas", "brasil", "midfielder", "free kicks"],
+        facts: { brazilian: true, striker: false, midfielder: true, defender: false, goalkeeper: false, worldCupWinner: false, playedEurope: true, retired: true, number10: true, flamengoLegend: false }
+      }
+    ];
+
+    const i18n = {
+      pt: {
+        title: "Adivinhão do Fla da Gama Paulista",
+        subtitle: "Faça até 5 perguntas de sim/não, peça 1 dica e tente acertar o jogador.",
+        questionTitle: "Perguntas (sim ou não)",
+        askBtn: "Perguntar",
+        hintBtn: "Pedir dica",
+        newGameBtn: "Novo jogador",
+        guessTitle: "Resposta final",
+        guessBtn: "Confirmar",
+        pathTitle: "Caminho de perguntas",
+        qCounter: (n) => `Perguntas: ${n}/5`,
+        hCounter: (used) => `Dica: ${used ? "usada" : "disponível"}`,
+        questionPlaceholder: "Ex.: Ele jogou na Europa?",
+        guessPlaceholder: "Digite o nome do jogador",
+        answerYes: "Sim",
+        answerNo: "Não",
+        answerLimit: "Limite de perguntas atingido.",
+        hintPrefix: "Dica:",
+        resultWin: "Acertou! Você descobriu o jogador!",
+        resultLose: (name) => `Não foi dessa vez. O jogador era ${name}.`,
+        copied: "Texto copiado para a área de transferência!",
+        askSomething: "Digite uma pergunta antes de enviar.",
+        shareBtn: "Compartilhar resultado",
+        copyBtn: "Copiar texto",
+        shareHeader: "Adivinhão do Fla da Gama Paulista",
+        stats: {
+          matches: "Jogos",
+          goals: "Gols",
+          assists: "Assistências",
+          cards: "Cartões (A/V)",
+          titles: "Títulos"
+        }
+      },
+      en: {
+        title: "Fla da Gama Paulista Guessing Game",
+        subtitle: "Ask up to 5 yes/no questions, request 1 hint, then make your final guess.",
+        questionTitle: "Questions (yes or no)",
+        askBtn: "Ask",
+        hintBtn: "Get hint",
+        newGameBtn: "New player",
+        guessTitle: "Final answer",
+        guessBtn: "Submit",
+        pathTitle: "Question path",
+        qCounter: (n) => `Questions: ${n}/5`,
+        hCounter: (used) => `Hint: ${used ? "used" : "available"}`,
+        questionPlaceholder: "Ex.: Did he play in Europe?",
+        guessPlaceholder: "Type the player's name",
+        answerYes: "Yes",
+        answerNo: "No",
+        answerLimit: "Question limit reached.",
+        hintPrefix: "Hint:",
+        resultWin: "Correct! You found the player!",
+        resultLose: (name) => `Not this time. The player was ${name}.`,
+        copied: "Copied to clipboard!",
+        askSomething: "Type a question before sending.",
+        shareBtn: "Share result",
+        copyBtn: "Copy text",
+        shareHeader: "Fla da Gama Paulista Guessing Game",
+        stats: {
+          matches: "Matches",
+          goals: "Goals",
+          assists: "Assists",
+          cards: "Cards (Y/R)",
+          titles: "Titles"
+        }
+      }
+    };
+
+    const questionMap = [
+      { keys: ["brasileiro", "brasil", "brazilian", "brazil"], fact: "brazilian" },
+      { keys: ["atacante", "striker", "forward", "centroavante"], fact: "striker" },
+      { keys: ["meia", "midfielder", "armador"], fact: "midfielder" },
+      { keys: ["zagueiro", "defensor", "defender"], fact: "defender" },
+      { keys: ["goleiro", "goalkeeper", "keeper"], fact: "goalkeeper" },
+      { keys: ["campeão do mundo", "world cup winner", "copa do mundo"], fact: "worldCupWinner" },
+      { keys: ["europa", "europe"], fact: "playedEurope" },
+      { keys: ["aposentado", "retired"], fact: "retired" },
+      { keys: ["camisa 10", "number 10", "número 10"], fact: "number10" },
+      { keys: ["ídolo do flamengo", "flamengo legend", "fla"], fact: "flamengoLegend" }
+    ];
+
+    let lang = "pt";
+    let currentPlayer;
+    let questionHistory;
+    let questionCount;
+    let hintUsed;
+    let gameOver;
+
+    const el = (id) => document.getElementById(id);
+
+    function normalize(text) {
+      return text.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function randomPlayer() {
+      return players[Math.floor(Math.random() * players.length)];
+    }
+
+    function local() {
+      return i18n[lang];
+    }
+
+    function setTexts() {
+      const t = local();
+      el("title").textContent = t.title;
+      el("subtitle").textContent = t.subtitle;
+      el("questionTitle").textContent = t.questionTitle;
+      el("askBtn").textContent = t.askBtn;
+      el("hintBtn").textContent = t.hintBtn;
+      el("newGameBtn").textContent = t.newGameBtn;
+      el("guessTitle").textContent = t.guessTitle;
+      el("guessBtn").textContent = t.guessBtn;
+      el("pathTitle").textContent = t.pathTitle;
+      el("questionInput").placeholder = t.questionPlaceholder;
+      el("guessInput").placeholder = t.guessPlaceholder;
+      el("copyBtn").textContent = t.copyBtn;
+      el("shareBtn").textContent = t.shareBtn;
+      renderStats();
+      refreshCounters();
+      renderPath();
+      updateShareText();
+    }
+
+    function renderStats() {
+      const t = local();
+      const s = currentPlayer.stats;
+      el("stats").innerHTML = `
+        <article class="stat"><small>${t.stats.matches}</small><strong>${s.matches}</strong></article>
+        <article class="stat"><small>${t.stats.goals}</small><strong>${s.goals}</strong></article>
+        <article class="stat"><small>${t.stats.assists}</small><strong>${s.assists}</strong></article>
+        <article class="stat"><small>${t.stats.cards}</small><strong>${s.yellowCards}/${s.redCards}</strong></article>
+        <article class="stat"><small>${t.stats.titles}</small><strong>${s.titles}</strong></article>
+      `;
+    }
+
+    function refreshCounters() {
+      const t = local();
+      el("questionCount").textContent = t.qCounter(questionCount);
+      el("hintCount").textContent = t.hCounter(hintUsed);
+      el("askBtn").disabled = gameOver || questionCount >= 5;
+      el("hintBtn").disabled = gameOver || hintUsed;
+      el("guessBtn").disabled = gameOver;
+    }
+
+    function answerQuestion(question) {
+      const cleaned = normalize(question);
+      for (const map of questionMap) {
+        if (map.keys.some((k) => cleaned.includes(normalize(k)))) {
+          return currentPlayer.facts[map.fact] ? local().answerYes : local().answerNo;
+        }
+      }
+      if (currentPlayer.tags.some((tag) => cleaned.includes(normalize(tag)))) {
+        return local().answerYes;
+      }
+      return local().answerNo;
+    }
+
+    function renderPath() {
+      const list = el("questionPath");
+      list.innerHTML = "";
+      questionHistory.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `${item.question} → ${item.answer}`;
+        list.appendChild(li);
+      });
+    }
+
+    function updateShareText(resultText = "") {
+      const t = local();
+      const log = questionHistory.map((q, idx) => `${idx + 1}. ${q.question} -> ${q.answer}`).join("\n") || "-";
+      const hintLine = hintUsed ? `${t.hintPrefix} ${currentPlayer.hint[lang]}` : "-";
+      el("shareText").value = `${t.shareHeader}\n\n${t.qCounter(questionCount)}\n${t.hCounter(hintUsed)}\n\n${hintLine}\n\n${log}\n\n${resultText}`;
+    }
+
+    function startNewGame() {
+      currentPlayer = randomPlayer();
+      questionHistory = [];
+      questionCount = 0;
+      hintUsed = false;
+      gameOver = false;
+      el("questionAnswer").textContent = "";
+      el("hintText").textContent = "";
+      el("guessResult").textContent = "";
+      el("questionInput").value = "";
+      el("guessInput").value = "";
+      setTexts();
+    }
+
+    el("askBtn").addEventListener("click", () => {
+      const t = local();
+      if (questionCount >= 5 || gameOver) {
+        el("questionAnswer").textContent = t.answerLimit;
+        return;
+      }
+
+      const q = el("questionInput").value.trim();
+      if (!q) {
+        el("questionAnswer").textContent = t.askSomething;
+        return;
+      }
+
+      const a = answerQuestion(q);
+      questionCount += 1;
+      questionHistory.push({ question: q, answer: a });
+      el("questionInput").value = "";
+      el("questionAnswer").textContent = a;
+      refreshCounters();
+      renderPath();
+      updateShareText(el("guessResult").textContent);
+    });
+
+    el("hintBtn").addEventListener("click", () => {
+      if (hintUsed || gameOver) return;
+      hintUsed = true;
+      el("hintText").textContent = `${local().hintPrefix} ${currentPlayer.hint[lang]}`;
+      refreshCounters();
+      updateShareText(el("guessResult").textContent);
+    });
+
+    el("guessBtn").addEventListener("click", () => {
+      if (gameOver) return;
+      const guess = normalize(el("guessInput").value);
+      const actual = normalize(currentPlayer.name);
+      const correct = guess === actual;
+      const result = correct ? local().resultWin : local().resultLose(currentPlayer.name);
+      gameOver = true;
+      el("guessResult").textContent = result;
+      refreshCounters();
+      updateShareText(result);
+    });
+
+    el("newGameBtn").addEventListener("click", startNewGame);
+
+    el("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(el("shareText").value);
+        el("guessResult").textContent = local().copied;
+      } catch {
+        el("guessResult").textContent = "Clipboard unavailable.";
+      }
+    });
+
+    el("shareBtn").addEventListener("click", async () => {
+      const payload = {
+        title: local().shareHeader,
+        text: el("shareText").value
+      };
+      if (navigator.share) {
+        try { await navigator.share(payload); } catch {}
+      } else {
+        await navigator.clipboard.writeText(el("shareText").value);
+        el("guessResult").textContent = local().copied;
+      }
+    });
+
+    el("language").addEventListener("change", (ev) => {
+      lang = ev.target.value;
+      setTexts();
+      if (hintUsed) {
+        el("hintText").textContent = `${local().hintPrefix} ${currentPlayer.hint[lang]}`;
+      }
+    });
+
+    startNewGame();
+  </script>
+</body>
+</html>
